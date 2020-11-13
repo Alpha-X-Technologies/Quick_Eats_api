@@ -12,9 +12,6 @@ if (result.error) {
     throw result.error
 }
 
-app.get('/', function(req, res) {
-    res.render('index', {});
-});
 //Default Route
 app.get('/api/', (req, res) => {
     res.send('We are on Home');
@@ -32,18 +29,6 @@ app.use('/api/users', users); //use it
 
 const restaurants = require('./routes/restaurants.js')
 app.use('/api/restaurants', restaurants);
-
-// Retriving the image 
-app.get('/', (req, res) => {
-    imgModel.find({}, (err, items) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.render('app', { items: items });
-        }
-    });
-});
-
 
 //listening to the server
 app.listen(4000);

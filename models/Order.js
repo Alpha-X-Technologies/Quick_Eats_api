@@ -11,7 +11,8 @@ const OrderSchema = mongoose.Schema({
         ref: 'User',
         required: true
     },
-    progress: String
+    progress: String,
+    isComplete: false
 });
 
 module.exports = mongoose.model('Order', OrderSchema);

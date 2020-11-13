@@ -6,16 +6,18 @@ const RestaurantSchema = mongoose.Schema({
     tel: String,
     email: String,
     openTimes: [{
+        days: String,
         times: String
     }],
     categories: [{
         name: String
     }],
     hasMenu: Boolean,
-    aggregateRating: {
-        ratingValue: String,
-        reviewCount: Number
-    },
+    menu: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'Menu'
+    }],
+    aggregateRating: Number,
     img: {
         data: Buffer,
         contentType: String
