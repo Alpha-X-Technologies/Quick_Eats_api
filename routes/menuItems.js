@@ -2,17 +2,30 @@ const express = require('express');
 const router = express.Router();
 const MenuItem = require('../models/MenuItem');
 const InventoryItem = require('../models/Inventory');
+const MenuCategory = require('../models/MenuCategory')
 const verify = require('./verifyToken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+
+
 router.get('/', (req, res) => {
-    InventoryItem.find({}, (err, inventory) => {
+    MenuCategory.find({}, (err, category) => {
         if (err) {
             console.log(err);
         } else {
-            res.render('item', { inventory: inventory });
+            InventoryItem.find({}, (err, inventory) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    res.render('item', {
+                        inventory: inventory,
+                        category: category
+                    });
+                }
+            });
+            // res.render('item', { category: category });
         }
     });
 });
@@ -68,11 +81,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 //Creating a MenuItem in the db
-router.post('/createnew', upload.single('image'), async(req, res) => {
+router.post('/new', upload.single('image'), async(req, res, next) => {
     console.log(req.body);
     const menuItem = new MenuItem({
         name: req.body.name,
         price: req.body.price,
+        category: req.body.category,
         // tagMenu: req.body.tagMenu, this should be computed according to Who uploaded it
         img: {
             data: fs.readFileSync(process.cwd() + '/uploads/' + req.file.filename),
@@ -80,19 +94,47 @@ router.post('/createnew', upload.single('image'), async(req, res) => {
         }
     });
     //console.log(req.body.CustomizationDetails);
-    for (var i in req.body.CustomizationDetails) {
-        // console.log(req.body.CustomizationDetails[i].name);
-        const itemFromDB = await InventoryItem.find({ name: req.body.CustomizationDetails[i].name });
-        menuItem.customizationDetails.push(itemFromDB[0]);
+    for (var i in req.body.customizationDetails) {
+        menuItem.customizationDetails.push(req.body.customizationDetails[i]);
     }
     try {
-        console.log(menuItem);
-        const saveMenuItem = await menuItem.save();
-        // res.json(saveMenuItem);
-        res.redirect('/api/menuItems');
+        const saveMenuItem = await menuItem.save().then(function() {
+            const menuForItem = MenuCategory.findById(menuItem.category).then(doc => {
+                doc.menuItems.push(doc._id);
+                const savedItemToCategory = doc.save();
+                res.send(doc);
+            }).catch(err => {
+                console.log(err);
+                return res.status(500).send("something went wrong");
+            });
+            // console.log(menuForItem);
+        });
+
+
+        //res.redirect('/api/menuItems');
     } catch (err) {
+        console.log(err);
         res.json({ message: err });
     }
+
+
+
 });
+// router.get("/users/:id", (req, res) => {
+//     User.findById(req.params.id).then(doc => {
+//         res.send(doc);
+//     }).catch(err => {
+//         console.log(err);
+//         return res.status(500).send("something went wrong");
+//     });
+// });
+// router.post('/addToCategory', upload.single('image'), async(req, res) => {
+
+//      console.log(menuForItem);
+
+//      console.log('-------------------------------------------')
+//      menuForItem.menuItems.push(saveMenuItem._id);
+//      const savedItemToCategory = await menuForItem.save();
+// });
 
 module.exports = router;

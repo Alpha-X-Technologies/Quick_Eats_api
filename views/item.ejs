@@ -24,17 +24,14 @@
 
             <div class="form-group">
                 <label for="item category name">Select item category</label>
-                <select name="select" class=" custom-select">
+                <select name="category" class=" custom-select">
                 <option selected>Open this select menu</option>
-                <option value="1">Appetizer</option>
-                <option value="2">Breakfast</option>
-                <option value="3">Lunch</option>
-                <option value="4">Main</option>
-                <option value="5">Special</option>
-                <option value="6">Drink</option>
-                <option value="7">Dessert</option>
+                <% category.forEach((category)=>{ %>
+                <option value="<%=category._id%>"><%= category.name %></option>
+                <% }) %>
               </select>
             </div>
+
             <div>
                 <label for="price">Item Price</label>
                 <input type="text" id="price" placeholder="price" value="" name="price" required>
@@ -47,7 +44,7 @@
                 <% inventory.forEach((inventory)=>{ %>
                     <div class="item">
                         <label for="scales"><%= inventory.name %></label>
-                        <input type="checkbox" name="checkbox" value="<%=inventory._id%>">
+                        <input type="checkbox" name="customizationDetails" value="<%=inventory._id%>">
                     </div>
                     <% }) %>
             </fieldset>

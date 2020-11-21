@@ -16,7 +16,10 @@ const ItemSchema = mongoose.Schema({
         data: Buffer,
         contentType: String
     },
-    category: String,
+    category: {
+        type: mongoose.Types.ObjectId,
+        ref: 'MenuCategory'
+    },
     customizationDetails: [{
         type: mongoose.Types.ObjectId,
         ref: 'InventoryItem'
