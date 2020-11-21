@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const Menu = require('../models/Menu');
+const MenuItem = require('../models/MenuItem');
 const MenuCategory = require('../models/MenuCategory');
 const verify = require('./verifyToken');
 
 
 
 //get all the Menus
-router.get('/menuList', verify, async(req, res) => {
+router.get('/menuCategories', verify, async(req, res) => {
     try {
         const MenuItems = await MenuItem.find();
         res.json(MenuItems);
@@ -17,7 +17,7 @@ router.get('/menuList', verify, async(req, res) => {
 });
 
 //get a specific MenuItem
-router.get('/menu', async(req, res) => {
+router.get('/menuCategory', async(req, res) => {
     let name = req.query.name;
     console.log(name);
     try {
@@ -44,7 +44,7 @@ const upload = multer({ storage: storage });
 //Creating a MenuItem in the db
 router.post('/new', upload.single('image'), async(req, res) => {
     console.log(req.body);
-    const menuItem = new MenuItem({
+    const menuCategory = new MenuItem({
         name: req.body.name,
         price: req.body.price,
         tagMenu: req.body.tagMenu,
@@ -62,7 +62,7 @@ router.post('/new', upload.single('image'), async(req, res) => {
     }
     try {
         console.log(menuItem);
-        const saveMenuItem = await menuItem.save();
+        const saveMenuItem = await menuCategory.save();
         res.json(saveMenuItem);
         // res.redirect('/');
     } catch (err) {

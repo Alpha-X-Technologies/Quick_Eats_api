@@ -3,27 +3,24 @@ const mongoose = require('mongoose');
 const ItemSchema = mongoose.Schema({
     name: String,
     price: Number,
+    itemDescription: String,
     date: {
         type: Date,
         default: Date.now
     },
-    ratings: [{
-        summary: String,
-        user: {
-            type: mongoose.Types.ObjectId,
-            ref: 'User'
-        },
-        numberOfStars: Number,
-        created: {
-            type: Date,
-            default: Date.now
-        }
+    reviews: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'Review'
     }],
     img: {
-        data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
-        contentType: 'image/png'
+        data: Buffer,
+        contentType: String
     },
-    tag: String
+    category: String,
+    customizationDetails: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'InventoryItem'
+    }]
 });
 
 module.exports = mongoose.model('MenuItem', ItemSchema);

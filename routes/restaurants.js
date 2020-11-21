@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Restaurant = require('../models/Restaurant');
 const verify = require('./verifyToken');
-const image = require('../models/Image');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -19,7 +18,7 @@ router.get('/restuaurantList', verify, async(req, res) => {
 });
 
 //get a specific restaurant
-router.get('/restaurant', async(req, res) => {
+router.get('/restaurant', verify, async(req, res) => {
     let mail = req.query.email;
     //console.log(mail);
     try {

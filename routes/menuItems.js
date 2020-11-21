@@ -1,15 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const MenuItem = require('../models/MenuItem');
+const InventoryItem = require('../models/Inventory');
 const verify = require('./verifyToken');
-const image = require('../models/Image');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+router.get('/', (req, res) => {
+    InventoryItem.find({}, (err, inventory) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render('item', { inventory: inventory });
+        }
+    });
+});
+
+// Retriving the image 
+router.get('/manageItems', (req, res) => {
+    MenuItem.find({}, (err, items) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render('item', { items: items });
+        }
+    });
+});
+
+router.get('/page', (req, res) => {
+    res.render('item')
+})
 
 //get all the MenuItems
-router.get('/restuaurantList', verify, async(req, res) => {
+router.get('/menuItemList', verify, async(req, res) => {
     try {
         const MenuItems = await MenuItem.find();
         res.json(MenuItems);
@@ -20,11 +44,11 @@ router.get('/restuaurantList', verify, async(req, res) => {
 
 //get a specific MenuItem
 router.get('/menuItem', async(req, res) => {
-    let mail = req.query.email;
-    //console.log(mail);
+    let name = req.query.name;
+    console.log(name);
     try {
         const menuItem = await MenuItem.find({
-            email: mail
+            name: name
         });
         res.json(menuItem);
     } catch (error) {
@@ -34,7 +58,7 @@ router.get('/menuItem', async(req, res) => {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './routes/uploads')
+        cb(null, 'uploads')
     },
     filename: (req, file, cb) => {
         cb(null, file.fieldname + '-' + Date.now())
@@ -44,21 +68,28 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 //Creating a MenuItem in the db
-router.post('/new', upload.single('image'), async(req, res) => {
-    //console.log(req.body);
+router.post('/createnew', upload.single('image'), async(req, res) => {
+    console.log(req.body);
     const menuItem = new MenuItem({
         name: req.body.name,
         price: req.body.price,
-
+        // tagMenu: req.body.tagMenu, this should be computed according to Who uploaded it
         img: {
-            data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
+            data: fs.readFileSync(process.cwd() + '/uploads/' + req.file.filename),
             contentType: 'image/png'
         }
     });
+    //console.log(req.body.CustomizationDetails);
+    for (var i in req.body.CustomizationDetails) {
+        // console.log(req.body.CustomizationDetails[i].name);
+        const itemFromDB = await InventoryItem.find({ name: req.body.CustomizationDetails[i].name });
+        menuItem.customizationDetails.push(itemFromDB[0]);
+    }
     try {
-        const saveMenuItem = await MenuItem.save();
-        res.json(saveMenuItem);
-        // res.redirect('/');
+        console.log(menuItem);
+        const saveMenuItem = await menuItem.save();
+        // res.json(saveMenuItem);
+        res.redirect('/api/menuItems');
     } catch (err) {
         res.json({ message: err });
     }

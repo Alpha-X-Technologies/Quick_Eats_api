@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const verify = require('./verifyToken');
 
 //get all the users
-router.get('/userList', verify, async(req, res) => {
+router.get('/userList', async(req, res) => {
     try {
         const users = await user.find();
         res.json(users);
