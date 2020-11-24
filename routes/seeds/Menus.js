@@ -18,7 +18,7 @@ const Category = mongoose.model('MenuCategory', MenuCatgorySchema);
 
 const makeCategory = async() => {
     const c = new Category({
-            name: 'Drinks',
+            name: 'Burgers',
             tag: 'Chubb'
         })
         //c.menuItems.push('5fb93116a4481713cc1fc0dd')

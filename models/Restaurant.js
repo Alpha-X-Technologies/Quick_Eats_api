@@ -2,17 +2,21 @@ const mongoose = require('mongoose');
 
 const RestaurantSchema = mongoose.Schema({
     name: String,
-    priceRange: String,
-    tel: String,
+    description: String,
+    address: String,
     email: String,
     openTimes: [{
+        days: String,
+        times: String
+    }],
+    closingTimes: [{
         days: String,
         times: String
     }],
     categories: [{
         name: String
     }],
-    hasMenu: Boolean,
+    isTakingOrders: Boolean,
     menu: [{
         type: mongoose.Types.ObjectId,
         ref: 'Menu'
@@ -21,6 +25,10 @@ const RestaurantSchema = mongoose.Schema({
     img: {
         data: Buffer,
         contentType: String
+    },
+    vendor_id: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Vendor'
     }
 });
 

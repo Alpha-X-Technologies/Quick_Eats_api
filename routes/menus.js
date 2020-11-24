@@ -42,17 +42,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 //Creating a MenuItem in the db
-router.post('/new', upload.single('image'), async(req, res) => {
+router.post('/new', async(req, res) => {
     console.log(req.body);
     const menuItem = new MenuItem({
         name: req.body.name,
-        price: req.body.price,
-        tagMenu: req.body.tagMenu,
-        tagMenuCategory: req.body.tagMenuCategory,
-        // img:{
-        //     data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
-        //     contentType: 'image/png'
-        // }
+        tag: req.body.store
     });
     //console.log(req.body.CustomizationDetails);
     for (var i in req.body.CustomizationDetails) {

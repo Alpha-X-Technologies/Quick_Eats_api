@@ -8,8 +8,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-
-
 router.get('/', (req, res) => {
     MenuCategory.find({}, (err, category) => {
         if (err) {
@@ -29,7 +27,6 @@ router.get('/', (req, res) => {
         }
     });
 });
-
 // Retriving the image 
 router.get('/manageItems', (req, res) => {
     MenuItem.find({}, (err, items) => {
@@ -120,21 +117,6 @@ router.post('/new', upload.single('image'), async(req, res, next) => {
 
 
 });
-// router.get("/users/:id", (req, res) => {
-//     User.findById(req.params.id).then(doc => {
-//         res.send(doc);
-//     }).catch(err => {
-//         console.log(err);
-//         return res.status(500).send("something went wrong");
-//     });
-// });
-// router.post('/addToCategory', upload.single('image'), async(req, res) => {
 
-//      console.log(menuForItem);
-
-//      console.log('-------------------------------------------')
-//      menuForItem.menuItems.push(saveMenuItem._id);
-//      const savedItemToCategory = await menuForItem.save();
-// });
 
 module.exports = router;
