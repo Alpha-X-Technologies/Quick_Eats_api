@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const verify = require('./verifyToken');
 
 //get all the users
-router.get('/userList', async(req, res) => {
+router.get('/userList', verify, async(req, res) => {
     try {
         const users = await user.find();
         res.json(users);
@@ -60,8 +60,8 @@ router.post('/login', async(req, res) => {
     //creating token
     const token = jwt.sign({ _id: userLogin._id }, process.env.TOKEN_SECRET, (err, token) => {
         console.log(token);
-        res.header('auth_token', token);
-        res.json('Logged In');
+        res.cookie('auth-token', token);
+        res.render('dashboard.ejs');
     });
 
 });
