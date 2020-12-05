@@ -28,16 +28,19 @@ app.get('/', (req, res) => {
     if (isEmptyObject(cookieExists)) {
         res.render('login.ejs');
     } else {
-        res.render('dashboard.ejs');
+        res.render('dashboard.ejs', { title: 'Home' });
     }
 });
+app.get('/', (req, res) => {
+    res.render('register.ejs')
+})
 
 function isEmptyObject(obj) {
     return !Object.keys(obj).length;
 }
 
 app.get('/login', (req, res) => {
-    res.render('login.ejs');
+    res.render('login.ejs', { title: 'Home' });
 });
 
 

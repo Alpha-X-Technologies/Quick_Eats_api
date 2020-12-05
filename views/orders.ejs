@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!-- here we want to see orders that have been checked out but not yet accepted by the retailer-->
+<html lang="en">
+<%- include('partials/header') %>
+
+    <body>
+        <%- include('partials/navbar') %>
+            <div class="container">
+                <div class="wrapper">
+                    <% order-pending.forEach((order)=>{ %>
+                        <div class="order">
+                            <img src="data:image/<%=image.img.contentType%>;base64, 
+					    <%=image.img.data.toString('base64')%>">
+                            <div>
+                                <h5>
+                                    <%= order.id %>
+                                </h5>
+                                <p>
+                                    <%= order.desc %>
+                                </p>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+
+            </div>
+
+            <%- include('partials/footer') %>
+    </body>
+
+</html>

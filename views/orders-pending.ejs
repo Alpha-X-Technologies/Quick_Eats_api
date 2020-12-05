@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!-- here we want to see orders that have been checked out but not yet accepted by the retailer-->
+<html lang="en">
+<%- include('partials/header') %>
+
+    <body>
+        <%- include('partials/navbar') %>
+            <div class="container">
+                <div class="wrapper">
+                    <% order-pending.forEach((order)=>{ %>
+                        <div class="order">
+                            <div>
+                                <%= order.user-name %>
+                            </div>
+                            <div>
+                                <% item.forEach((order.items)=>{ %>
+                                    <ol>
+                                        <li>
+                                            <%= item.name %>
+                                        </li>
+                                        <li>
+                                            <%= item.price %>
+                                        </li>
+                                        <li>
+                                            <%= item.count %>
+                                        </li>
+                                    </ol>
+                                    <% }) %>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+            </div>
+            <div style="padding-top: 5em;">
+                <button>Stop Taking Orders</button>
+            </div>
+
+            <%- include('partials/footer') %>
+    </body>
+
+</html>
