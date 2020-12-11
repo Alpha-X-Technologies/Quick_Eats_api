@@ -1,29 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const MenuItem = require('../models/MenuItem');
-const InventoryItem = require('../models/Inventory');
-const MenuCategory = require('../models/MenuCategory')
+const Order = require('../models/Order');
 const verify = require('./verifyToken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
 router.get('/', (req, res) => {
-    MenuCategory.find({}, (err, categoryFromClient) => {
+    Order.find({}, (err, category) => {
         if (err) {
             console.log(err);
         } else {
-            InventoryItem.find({}, (err, inventory) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    res.render('createItem', {
-                        inventory: inventory,
-                        category: categoryFromClient
-                    });
-                }
+            res.render('order', {
+                inventory: inventory,
+                category: category
             });
-            // res.render('item', { category: category });
         }
     });
 });

@@ -61,7 +61,7 @@ router.post('/login', async(req, res) => {
     const token = jwt.sign({ _id: userLogin._id }, process.env.TOKEN_SECRET, (err, token) => {
         console.log(token);
         res.cookie('auth-token', token);
-        res.render('dashboard.ejs');
+        res.redirect('/dashboard');
     });
 
 });

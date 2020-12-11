@@ -35,6 +35,13 @@ app.get('/', (req, res) => {
     res.render('register.ejs')
 })
 
+app.get('/orders', verify, (req, res) => {
+    res.render('orders.ejs')
+})
+app.get('/dashboard', verify, (req, res) => {
+    res.render('dashboard.ejs')
+})
+
 function isEmptyObject(obj) {
     return !Object.keys(obj).length;
 }
@@ -53,19 +60,19 @@ mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true, useNewUr
 
 
 const users = require('./routes/users.js'); //require the router
-app.use('/api/users', users); //use it
+app.use('/users', users); //use it
 
 // const vendors = require('./routes/vendors.js');
 // app.use('/api/vendor', vendors);
 
 const menuItems = require('./routes/menuItems.js')
-app.use('/api/menuItems', menuItems);
+app.use('/menuItems', menuItems);
 
 // const menus = require('./routes/menus.js')
-// app.use('/api/menus', menus);
+// app.use('/menus', menus);
 
 const restaurants = require('./routes/restaurants.js')
-app.use('/api/restaurants', restaurants);
+app.use('/restaurants', restaurants);
 
 // const dashboards = require('./routes/dashboards.js')
 // app.use('/management/dash')

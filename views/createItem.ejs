@@ -24,10 +24,10 @@
 
             <div class="form-group">
                 <label for="item category name">Select item category</label>
-                <select name="category" class=" custom-select">
+                <select name="ClientCategory" class=" custom-select">
                 <option selected>Open this select menu</option>
-                <% category.forEach((category)=>{ %>
-                <option value="<%=category._id%>"><%= category.name %></option>
+                <% category.forEach((ClientCategory)=>{ %>
+                <option value="<%=category._id%>"><%= ClientCategory.name %></option>
                 <% }) %>
               </select>
             </div>
