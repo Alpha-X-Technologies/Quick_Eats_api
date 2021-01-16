@@ -8,7 +8,7 @@ const fs = require('fs');
 
 
 //get all the restaurants
-router.get('/restuaurantList', verify, async(req, res) => {
+router.get('/', async(req, res) => {
     try {
         const restaurants = await Restaurant.find();
         res.json(restaurants);
@@ -19,7 +19,7 @@ router.get('/restuaurantList', verify, async(req, res) => {
 
 //get a specific restaurant
 router.get('/restaurant', verify, async(req, res) => {
-    let mail = req.query.email;
+    let mail = req.query.id;
     //console.log(mail);
     try {
         const restaurant = await Restaurant.find({
@@ -47,16 +47,19 @@ router.post('/new', upload.single('image'), async(req, res) => {
     //console.log(req.body);
     const restaurant = new Restaurant({
         name: req.body.name,
-        email: req.body.email,
-        tel: req.body.tel,
+        //email: req.body.email,
+        description: req.body.description,
+        contact_number: req.body.contact_number,
+        campus: req.body.campus,
         openTimes: req.body.openTimes,
-        categories: req.body.categories,
+        //categories: req.body.categories,
         hasMenu: true,
         aggregateRating: req.body.aggregateRating,
         img: {
             data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
             contentType: 'image/png'
-        }
+        },
+        vendor_id: req.body.vendor_id
     });
     try {
         const saveRestaurant = await restaurant.save();

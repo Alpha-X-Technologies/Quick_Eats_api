@@ -62,8 +62,8 @@ mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true, useNewUr
 const users = require('./routes/users.js'); //require the router
 app.use('/users', users); //use it
 
-// const vendors = require('./routes/vendors.js');
-// app.use('/api/vendor', vendors);
+const vendors = require('./routes/vendors.js');
+app.use('/vendor', vendors);
 
 const menuItems = require('./routes/menuItems.js')
 app.use('/menuItems', menuItems);
