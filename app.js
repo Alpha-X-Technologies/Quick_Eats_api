@@ -7,9 +7,6 @@ var cookieParser = require('cookie-parser')
 const verify = require('../Quick_Eats_api/routes/verifyToken');
 const result = require('dotenv').config({ path: path.resolve(process.cwd(), '.env') })
 
-//we are going to be using EJS
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '/views'));
 
 //for all json requests
 app.use(bodyParser.json());
@@ -20,35 +17,6 @@ app.use(bodyParser.urlencoded({
 if (result.error) {
     throw result.error
 }
-//Default Route
-app.use(cookieParser());
-app.get('/', (req, res) => {
-    const cookieExists = req.cookies
-    console.log('cook', cookieExists)
-    if (isEmptyObject(cookieExists)) {
-        res.render('login.ejs');
-    } else {
-        res.render('dashboard.ejs', { title: 'Home' });
-    }
-});
-app.get('/', (req, res) => {
-    res.render('register.ejs')
-})
-
-app.get('/orders', verify, (req, res) => {
-    res.render('orders.ejs')
-})
-app.get('/dashboard', verify, (req, res) => {
-    res.render('dashboard.ejs')
-})
-
-function isEmptyObject(obj) {
-    return !Object.keys(obj).length;
-}
-
-app.get('/login', (req, res) => {
-    res.render('login.ejs', { title: 'Home' });
-});
 
 
 //connect to db
