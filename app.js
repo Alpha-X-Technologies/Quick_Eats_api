@@ -2,17 +2,14 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const path = require('path');
-const bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
 const verify = require('../Quick_Eats_api/routes/verifyToken');
 const result = require('dotenv').config({ path: path.resolve(process.cwd(), '.env') })
 
 
 //for all json requests
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 if (result.error) {
     throw result.error
@@ -22,8 +19,7 @@ if (result.error) {
 //connect to db
 mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true, useNewUrlParser: true }, () => {
     console.log('connected to DB');
-    // const collection = client.db("test").collection("devices");
-    // console.log(collection);
+
 })
 
 
@@ -36,8 +32,8 @@ app.use('/vendor', vendors);
 const menuItems = require('./routes/menuItems.js')
 app.use('/menuItems', menuItems);
 
-// const menus = require('./routes/menus.js')
-// app.use('/menus', menus);
+const menus = require('./routes/menus.js')
+app.use('/menus', menus);
 
 const restaurants = require('./routes/restaurants.js')
 app.use('/restaurants', restaurants);
