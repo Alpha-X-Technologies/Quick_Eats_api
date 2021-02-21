@@ -155,6 +155,10 @@ router.post('/new', async(req, res) => {
         res.status(500).json({ message: err });
     }
 });
+//delete an order
+router.get('/order/:id', verify, async(req, res) => {
 
+});
+//post an order
 
 module.exports = router;
