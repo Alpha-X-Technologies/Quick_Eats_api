@@ -68,11 +68,17 @@ app.use('/vendor', vendors);
 const menuItems = require('./routes/menuItems.js')
 app.use('/menuItems', menuItems);
 
-// const menus = require('./routes/menus.js')
-// app.use('/menus', menus);
+const menus = require('./routes/menus.js')
+app.use('/menus', menus);
+
+const orders = require('./routes/orders.js');
+app.use('/orders', orders);
 
 const restaurants = require('./routes/restaurants.js')
 app.use('/restaurants', restaurants);
+
+const menuItemCategories = require('./routes/menuCategory.js')
+app.use('/menuItemCategories', menuItemCategories);
 
 // const dashboards = require('./routes/dashboards.js')
 // app.use('/management/dash')

@@ -24,18 +24,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post('add',upload.single('image'), async (req, res) => {
+router.post('add', async(req, res) => {
     const nameExist = await Category.findOne({ name: req.body.name });
     if (nameExist) return res.status(400).send('Name already exists');
 
     const menuCategory = new Category({
-        name:req.body.name,
+        name: req.body.name,
         picture_url: __dirname + '/uploads/' + req.file.filename
     });
 
     try {
         const saveCat = await menuCategory.save();
-        res.json(saveCat); 
+        res.json(saveCat);
     } catch (error) {
         res.json({ message: error });
     }
@@ -44,9 +44,14 @@ router.post('add',upload.single('image'), async (req, res) => {
 
 router.get(':id', verify, async(req, res) => {
     try {
-        const menuCategories = await Category.find();
+        var id = req.params.id;
+        const menuCategories = await Category.find({
+            _id: id
+        });
         res.json(menuCategories);
     } catch (error) {
         res.json({ message: error });
     }
 });
+
+module.exports = router;

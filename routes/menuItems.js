@@ -8,24 +8,15 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-router.get('/', (req, res) => {
-    MenuCategory.find({}, (err, categoryFromClient) => {
-        if (err) {
-            console.log(err);
-        } else {
-            InventoryItem.find({}, (err, inventory) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    res.render('createItem', {
-                        inventory: inventory,
-                        category: categoryFromClient
-                    });
-                }
-            });
-            // res.render('item', { category: category });
-        }
-    });
+router.get('/:menu_id', async(req, res) => {
+    try {
+        const MenuItems = await MenuItem.find({
+            menu: req.params.menu_id
+        });
+        res.json(MenuItems);
+    } catch (error) {
+        res.json({ message: error });
+    }
 });
 // Retriving the image 
 router.get('/manageItems', (req, res) => {

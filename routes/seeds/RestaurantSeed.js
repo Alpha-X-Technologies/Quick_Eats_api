@@ -9,54 +9,47 @@ if (result.error) {
 
 const makeRestaurant = async() => {
     const restaurant = new Restaurant({
-        name: 'Flavaz South',
-        //email: 'flavaz@email.com',
-        description: 'An store that offers quality food at a reasonable price',
-        contact_number: '0414016549',
+        name: 'Cafe South',
+        description: 'The cafeteria situated on the South campus',
+        contact_number: '0414612249',
         campus: 'South',
         trading_hours: [{
-            day: 'Monday',
-            times: '08:00-15:00'
-        },
-        {
-            day: 'Tuesday',
-            times: '08:00-15:00'
+                day: '1',
+                times: '08:00-21:00'
+            },
+            {
+                day: '2',
+                times: '08:00-21:00'
 
-        }, {
-            day: 'Wednesday',
-            times: '08:00-15:00'
+            }, {
+                day: '3',
+                times: '08:00-21:00'
 
-        },
-        {
-            day: 'Thursday',
-            times: '08:00-15:00'
+            },
+            {
+                day: '4',
+                times: '08:00-21:00'
 
-        }, {
-            day: 'Friday',
-            times: '08:00-15:00',
-            unavailable: '12:00-14:00',
+            }, {
+                day: '5',
+                times: '08:00-22:00',
 
-        }, {
-            day: 'Saturday',
-            times: '10:00-18:00'
-        }, {
-            day: 'Sunday',
-            times: '10:00-15:00'
+            }, {
+                day: '6',
+                times: '10:00-16:00'
+            }, {
+                day: '7',
+                times: '10:00-13:00'
 
-        }],
-        hasMenu: true,
-        //TODO perform aggregate calculations on the restaurant
-        aggregateRating: 4.7,
-        // img: {
-        //     data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
-        //     contentType: 'image/png'
-        // },
-        vendor_id: '5fd4d74c584eb04bb0a3cd62'
+            }
+        ],
+        picture_url: "https://i.ibb.co/4ZF0ZJQ/logo.png",
+        vendor: '6016a6f55cf9231448c12282'
     });
     //c.menuItems.push('5fb93116a4481713cc1fc0dd')
     try {
         const saveRestaurant = await restaurant.save();
-        console.log(saveRestaurant);
+        //console.log(saveRestaurant);
         //res.json(saveRestaurant);
         // res.redirect('/');
     } catch (err) {
@@ -67,7 +60,7 @@ const makeRestaurant = async() => {
     //console.log(res);
 }
 
-mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true,useNewUrlParser: true }, () => {
+mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true, useNewUrlParser: true }, () => {
     console.log('connected to DB');
     // const collection = client.db("test").collection("devices");
     // console.log(collection);
@@ -75,4 +68,3 @@ mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true,useNewUrl
 
 
 makeRestaurant();
-//module.exports = makeRestaurant;

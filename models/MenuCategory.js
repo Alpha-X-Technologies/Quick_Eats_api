@@ -8,15 +8,10 @@ const MenuCategorySchema = mongoose.Schema({
             unique: true
         }
     },
-    tag: String,
-    picture_url:String
-    // menuItems: [{
-    //     type: mongoose.Types.ObjectId,
-    //     ref: 'MenuItem'
-    // }]
+    picture_url: String
 });
 
 
-const Category = mongoose.model('MenuCategory', MenuCategorySchema);
+const MenuItemCategory = mongoose.model('MenuCategory', MenuCategorySchema);
 
-module.exports = Category;
+module.exports = MenuItemCategory;

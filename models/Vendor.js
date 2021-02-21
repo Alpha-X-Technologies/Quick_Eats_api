@@ -9,9 +9,11 @@ const VendorSchema = new mongoose.Schema({
         }
     },
     merchant_id: String,
-    category: [{
-        name: String,
-        //picture_url:String
+    //NOTE needs to be encrypted
+    merchant_key: String,
+    categories: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'MenuCategory'
     }],
     //we don't need these values for the vendor as these properties should be referenced from the user that this 
     //vendor is registered to
@@ -28,12 +30,10 @@ const VendorSchema = new mongoose.Schema({
     //     type: Number,
     //     required: true
     // },
-    updated_at: Date,
-    created_at: Date,
-    user_id: [{
+    user: [{
         type: mongoose.Types.ObjectId,
         ref: 'User'
     }]
-});
+}, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
 module.exports = mongoose.model('Vendor', VendorSchema);

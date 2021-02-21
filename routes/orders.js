@@ -1,112 +1,159 @@
 const express = require('express');
+const crypto = require("crypto");
 const router = express.Router();
 const Order = require('../models/Order');
-const verify = require('./verifyToken');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const Rating = require('../models/Rating');
+const { db } = require('../models/Order');
 
-router.get('/', (req, res) => {
-    Order.find({}, (err, category) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.render('order', {
-                inventory: inventory,
-                category: category
-            });
-        }
-    });
-});
-// Retriving the image 
-router.get('/manageItems', (req, res) => {
-    MenuItem.find({}, (err, items) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.render('item', { items: items });
-        }
-    });
-});
 
-router.get('/page', (req, res) => {
-    res.render('item')
-})
-
-//get all the MenuItems
-router.get('/menuItemList', verify, async(req, res) => {
+//get order history
+//get completed and fetched orders
+router.get('/history/:userId', async(req, res) => {
+    let id = req.params.userId;
     try {
-        const MenuItems = await MenuItem.find();
-        res.json(MenuItems);
-    } catch (error) {
-        res.json({ message: error });
-    }
-});
-
-//get a specific MenuItem
-router.get('/menuItem', async(req, res) => {
-    let name = req.query.name;
-    console.log(name);
-    try {
-        const menuItem = await MenuItem.find({
-            name: name
-        });
-        res.json(menuItem);
-    } catch (error) {
-        res.json({ message: error });
-    }
-});
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now())
-    }
-});
-
-const upload = multer({ storage: storage });
-
-//Creating a MenuItem in the db
-router.post('/new', upload.single('image'), async(req, res, next) => {
-    console.log(req.body);
-    const menuItem = new MenuItem({
-        name: req.body.name,
-        price: req.body.price,
-        category: req.body.category,
-        // tagMenu: req.body.tagMenu, this should be computed according to Who uploaded it
-        img: {
-            data: fs.readFileSync(process.cwd() + '/uploads/' + req.file.filename),
-            contentType: 'image/png'
-        }
-    });
-    //console.log(req.body.CustomizationDetails);
-    for (var i in req.body.customizationDetails) {
-        menuItem.customizationDetails.push(req.body.customizationDetails[i]);
-    }
-    try {
-        const saveMenuItem = await menuItem.save().then(function() {
-            const menuForItem = MenuCategory.findById(menuItem.category).then(doc => {
-                doc.menuItems.push(doc._id);
-                const savedItemToCategory = doc.save();
-                res.send(doc);
-            }).catch(err => {
+        await Order.find({
+            user: id,
+            orderStatus: 4
+        }, (err, order) => {
+            if (err) {
                 console.log(err);
-                return res.status(500).send("something went wrong");
-            });
-            // console.log(menuForItem);
+            } else {
+                res.json(order);
+            }
         });
 
+    } catch (error) {
+        res.status(500).json({ message: error });
+    }
+});
 
-        //res.redirect('/api/menuItems');
+
+//Payfast pages
+router.get('/thank-you', (req, res) => {
+    res.render('Orders/thank_you.ejs');
+});
+router.get('/cancel', (req, res) => {
+    res.render('Orders/cancel.ejs');
+});
+
+
+//get ongoing orders
+router.get('/:userId', async(req, res) => {
+    let id = req.params.userId;
+    try {
+        await Order.find({
+            user: id,
+            orderStatus: { $ne: 3 }
+        }, (err, order) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.json(order);
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error });
+    }
+});
+
+router.post('/notify', async(req, res) => {
+    var payload = req.body;
+    const orderId = payload.m_payment_id;
+    const paymentStatus = payload.payment_status;
+    //TODO need to do security checks before changing payment status
+    Order.findById(orderId, (err, order) => {
+        if (!order) {
+            res.status(500).json(err);
+        } else {
+            order.progress = paymentStatus == "COMPLETE" ? 1 : 5;
+            order.save().then((value) => {
+                if (value)
+                    res.json({ 'message': 'Order Status Changed Successfully' })
+            }, (err) => {
+                res.status(500).json(err);
+            });
+        }
+    })
+    console.log(payload);
+    res.sendStatus(200);
+});
+
+securityChecks = (payload) => {
+    //verify signature
+    //check notification is received from Payfast
+    //compare payment data
+    //perform server request to confirm details
+
+}
+
+
+//rating order at a later stage
+router.post('/rate-order', async(req, res) => {
+    const rating = new Rating({
+        feedback: req.body.feedback,
+        rating: req.body.rating,
+        restaurant: req.body.restaurantId,
+        user: req.body.userId,
+        menu_item: req.body.menuItemId
+    });
+
+    const ratingSave = rating.save();
+    ratingSave.then((savedRating) => {
+        await Order.findById(req.body.orderId, (err, order) => {
+            if (!order) {
+                res.status(500).json(err);
+            } else {
+                order.rating = savedRating._id;
+                await order.save().then(() => {
+                    res.json({ "message": "Rating saved successfully" })
+                }, (err) => {
+                    res.status(500).json(err);
+                });
+            }
+        })
+    })
+});
+
+router.post('/update-status', async(req, res) => {
+    var status = req.body.status;
+    await Order.findById(req.body.order, (err, order) => {
+        if (!order) {
+            res.status(500).json(err);
+        } else {
+            order.progress = status;
+            order.save().then((value) => {
+                if (value)
+                    res.json({ 'message': 'Order Status Changed Successfully' })
+            }, (err) => {
+                res.status(500).json(err);
+            });
+        }
+    })
+});
+
+
+//Creating a new order in the DB
+router.post('/new', async(req, res) => {
+    console.log(req.body);
+    const countQuery = Order.countDocuments({});
+    var count = (await countQuery).valueOf() + 1;
+    count.toString().padStart(5, '0');
+    var newId = "QE" + count;
+    const order = new Order({
+        restaurant: req.body.restaurant,
+        user: req.body.user,
+        cart: req.body.cart,
+        readabledOrderId: newId
+    });
+
+    try {
+        const saveOrder = await order.save();
+        res.json(saveOrder);
     } catch (err) {
         console.log(err);
-        res.json({ message: err });
+        res.status(500).json({ message: err });
     }
-
-
-
 });
 
 

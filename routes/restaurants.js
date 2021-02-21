@@ -5,25 +5,26 @@ const verify = require('./verifyToken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const Rating = require('../models/Rating');
 
 
 //get all the restaurants
 router.get('/', async(req, res) => {
     try {
+        //TODO use populate to get objects instead of ids
         const restaurants = await Restaurant.find();
-        res.json(restaurants);
+        res.json({ 'restaurants': restaurants });
     } catch (error) {
         res.json({ message: error });
     }
 });
 
 //get a specific restaurant
-router.get('/restaurant', verify, async(req, res) => {
-    let mail = req.query.id;
-    //console.log(mail);
+router.get('/restaurant/:id', verify, async(req, res) => {
+    let id = req.params.id;
     try {
         const restaurant = await Restaurant.find({
-            email: mail
+            _id: id
         });
         res.json(restaurant);
     } catch (error) {
@@ -51,15 +52,13 @@ router.post('/new', upload.single('image'), async(req, res) => {
         description: req.body.description,
         contact_number: req.body.contact_number,
         campus: req.body.campus,
-        openTimes: req.body.openTimes,
-        //categories: req.body.categories,
-        hasMenu: true,
-        aggregateRating: req.body.aggregateRating,
+        //TODO get image data and upload to server and add picture url property to restaurant
         img: {
             data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
             contentType: 'image/png'
         },
-        vendor_id: req.body.vendor_id
+        trading_hours = req.body.trading_hours,
+        vendor: req.body.vendor_id
     });
     try {
         const saveRestaurant = await restaurant.save();

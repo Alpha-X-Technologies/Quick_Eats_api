@@ -2,14 +2,20 @@ const express = require('express');
 const router = express.Router();
 const Menu = require('../models/Menu');
 const MenuCategory = require('../models/MenuCategory');
+const MenuItem = require('../models/MenuItem');
 const verify = require('./verifyToken');
 
 
 
-//get all the Menus
-router.get('/menuList', verify, async(req, res) => {
+//get all the Menus for restaurant
+router.get('/menuList/:restaurantId', verify, async(req, res) => {
     try {
-        const MenuItems = await MenuItem.find();
+        const MenuItems = await Menu.find({
+            _id: req.params.restaurantId
+        });
+        if (MenuItems.length == 1) {
+            //get menu items for menu
+        }
         res.json(MenuItems);
     } catch (error) {
         res.json({ message: error });
@@ -30,32 +36,14 @@ router.get('/menu', async(req, res) => {
     }
 });
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './routes/uploads')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now())
-    }
-});
-
-const upload = multer({ storage: storage });
-
-//Creating a MenuItem in the db
+//Creating a Menu item in the db
 router.post('/new', async(req, res) => {
-    console.log(req.body);
-    const menuItem = new MenuItem({
+    const menuItem = new Menu({
         name: req.body.name,
-        tag: req.body.store
+        description: req.body.description,
+        restaurant: req.body.restaurant
     });
-    //console.log(req.body.CustomizationDetails);
-    for (var i in req.body.CustomizationDetails) {
-        // console.log(req.body.CustomizationDetails[i].name);
-        const itemFromDB = await InventoryItem.find({ name: req.body.CustomizationDetails[i].name });
-        menuItem.customizationDetails.push(itemFromDB[0]);
-    }
     try {
-        console.log(menuItem);
         const saveMenuItem = await menuItem.save();
         res.json(saveMenuItem);
         // res.redirect('/');

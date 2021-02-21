@@ -1,10 +1,11 @@
 const express = require('express');
+const Restaurant = require('../models/Restaurant');
 const router = express.Router();
 const Vendor = require('../models/Vendor');
 const verify = require('./verifyToken');
 
 //get all the vendors
-router.get('/vendorList', async (req, res) => {
+router.get('/vendorList', async(req, res) => {
     try {
         const vendors = await Vendor.find();
         res.json(vendors);
@@ -13,8 +14,41 @@ router.get('/vendorList', async (req, res) => {
     }
 });
 
+router.get('/get-merchant-details/:restaurantId', async(req, res) => {
+    let id = req.params.restaurantId;
+    //console.log(id);
+    // const vendor = await Vendor.aggregate([{
+    //     $lookup: {
+    //         from: "Restaurant",
+    //         localField: "_id",
+    //         foreignField: "vendor",
+    //         as: "vendors"
+    //     }
+    // }]);
+    // console.log(vendor);
+    // res.json(vendor);
+
+
+    await Restaurant.findById(id, (err, restaurant) => {
+        if (!restaurant) {
+            res.status(500).json("Rest does not exist")
+        } else {
+            //NOTE in the DB it is still the vendor_id even though it is changed in the model
+            Vendor.findById(restaurant.vendor_id, (err, vendor) => {
+                if (!vendor) {
+                    res.status(500).json('Does not exist');
+                } else {
+                    res.json({ "merchant_id": vendor.merchant_id, "merchant_key": vendor.merchant_key })
+                }
+            })
+
+        }
+    });
+
+})
+
 //get a specific vendor
-router.get('/vendor', verify, async (req, res) => {
+router.get('/vendor', verify, async(req, res) => {
     let mail = req.query.email;
     //console.log(mail);
     try {
@@ -28,7 +62,7 @@ router.get('/vendor', verify, async (req, res) => {
 });
 
 //editing a vendor
-router.post('edit', async (req, res) => {
+router.post('edit', async(req, res) => {
     const currentVendor = await Vendor.findOne({ id: req.body.id });
     if (!currentVendor) return res.status(400).send('Vendor does not exist');
 
@@ -51,15 +85,15 @@ router.post('edit', async (req, res) => {
 });
 
 //Creating a user in the db
-router.put('/register', async (req, res) => {
+router.put('/register', async(req, res) => {
     const emailExist = await Vendor.findOne({ trading_name: req.body.name });
     if (emailExist) return res.status(400).send('Trading name already exists');
     //const emailExist = await currentUser.findOne({ email: req.body.email }); the registered person
-    //console.log(req.body);
+    console.log(req.body);
     const newVendor = new Vendor({
         trading_name: req.body.name,
         merchant_id: req.body.merchant,
-        category: req.body.category,
+        categories: req.body.categories,
         //we don't need these values for the vendor as these properties should be referenced from the user that this 
         //vendor is registered to
 
@@ -67,14 +101,11 @@ router.put('/register', async (req, res) => {
         //contact_number: req.body.phone,
         //contact_person_name: req.body.contact_person_name,
 
-        user_id: req.body.user_id,
-        updated_at: Date.now(),
-        created_at: Date.now()
+        user: req.body.user,
     });
     try {
-        //console.log(newVendor);
         const saveVendor = await newVendor.save();
-        res.send({ vendor: vendor._id });
+        res.send({ vendor: saveVendor._id });
     } catch (err) {
         res.status(500).send({ error: err });
     }
