@@ -105,7 +105,7 @@ router.post('/rate-order', async(req, res) => {
                 res.status(500).json(err);
             } else {
                 order.rating = savedRating._id;
-                await order.save().then(() => {
+                order.save().then(() => {
                     res.json({ "message": "Rating saved successfully" })
                 }, (err) => {
                     res.status(500).json(err);
