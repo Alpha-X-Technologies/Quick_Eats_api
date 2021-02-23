@@ -3,11 +3,10 @@ const app = express();
 const mongoose = require('mongoose');
 const path = require('path');
 var cookieParser = require('cookie-parser')
-const verify = require('../Quick_Eats_api/routes/verifyToken');
 const result = require('dotenv').config({ path: path.resolve(process.cwd(), '.env') })
 
 
-//for all json requests
+//for all json and form requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
