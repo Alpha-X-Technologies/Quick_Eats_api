@@ -10,7 +10,7 @@ const RestaurantSchema = mongoose.Schema({
     },
     description: String,
     address: String,
-    contactNumber: String,
+    contact_number: String,
     //have a campus property for now that we might change in the future
     campus: String,
     trading_hours: [{
@@ -28,6 +28,7 @@ const RestaurantSchema = mongoose.Schema({
         type: Boolean,
         default: true
     },
+    //we can keep a reference of the menus here as the number of menus is not expected to be many per restaurant
     menus: [{
         type: mongoose.Types.ObjectId,
         ref: 'Menu'

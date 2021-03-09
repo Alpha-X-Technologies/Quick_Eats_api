@@ -4,6 +4,8 @@ const router = express.Router();
 const Order = require('../models/Order');
 const Rating = require('../models/Rating');
 const { db } = require('../models/Order');
+const Cart = require('../models/Cart');
+const { json } = require('express');
 
 
 //get order history
@@ -63,19 +65,19 @@ router.post('/notify', async(req, res) => {
     const paymentStatus = payload.payment_status;
     //TODO need to do security checks before changing payment status
     Order.findById(orderId, (err, order) => {
-        if (!order) {
-            res.status(500).json(err);
-        } else {
-            order.progress = paymentStatus == "COMPLETE" ? 1 : 5;
-            order.save().then((value) => {
-                if (value)
-                    res.json({ 'message': 'Order Status Changed Successfully' })
-            }, (err) => {
+            if (!order) {
                 res.status(500).json(err);
-            });
-        }
-    })
-    console.log(payload);
+            } else {
+                order.progress = paymentStatus == "COMPLETE" ? 1 : 5;
+                order.save().then((value) => {
+                    if (value)
+                        res.json({ 'message': 'Order Status Changed Successfully' })
+                }, (err) => {
+                    res.status(500).json(err);
+                });
+            }
+        })
+        //console.log(payload);
     res.sendStatus(200);
 });
 
@@ -98,9 +100,9 @@ router.post('/rate-order', async(req, res) => {
         menu_item: req.body.menuItemId
     });
 
-    const ratingSave = rating.save();
+    const ratingSave = await rating.save();
     ratingSave.then((savedRating) => {
-        await Order.findById(req.body.orderId, (err, order) => {
+        Order.findById(req.body.orderId, (err, order) => {
             if (!order) {
                 res.status(500).json(err);
             } else {
@@ -135,30 +137,46 @@ router.post('/update-status', async(req, res) => {
 
 //Creating a new order in the DB
 router.post('/new', async(req, res) => {
-    console.log(req.body);
+    //TODO need to randomise order id for security purposes
     const countQuery = Order.countDocuments({});
     var count = (await countQuery).valueOf() + 1;
-    count.toString().padStart(5, '0');
-    var newId = "QE" + count;
-    const order = new Order({
-        restaurant: req.body.restaurant,
+    var countString = count.toString().padStart(5, '0');
+    var newId = "QE" + countString;
+
+    const cart = new Cart({
+        total: req.body.cart.total,
+        number_items: req.body.cart.number_items,
+        cart_items: req.body.cart.cart_items,
+        total_discount: req.body.cart.discount,
+        is_active: true,
         user: req.body.user,
-        cart: req.body.cart,
-        readabledOrderId: newId
     });
 
-    try {
-        const saveOrder = await order.save();
-        res.json(saveOrder);
-    } catch (err) {
+    await cart.save().then((value) => {
+        const order = new Order({
+            restaurant: req.body.restaurant,
+            user: req.body.user,
+            cart: value._id,
+            readableOrderId: newId
+        });
+        order.save().then((value) => {
+            value.populate('restaurant').populate('cart').populate('cart').execPopulate().then((pop) => {
+                res.json(pop);
+            }, (err) => {
+                console.log(err);
+                res.status(400), json('Error creating order');
+            });
+
+        });
+    }, (err) => {
         console.log(err);
         res.status(500).json({ message: err });
-    }
+    })
 });
 //delete an order
-router.get('/order/:id', verify, async(req, res) => {
+// router.get('/order/:id', verify, async(req, res) => {
 
-});
+// });
 //post an order
 
 module.exports = router;

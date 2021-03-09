@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const ItemSchema = mongoose.Schema({
     name: String,
-    price: Number,
+    price: mongoose.Types.Decimal128,
     description: String,
     menu: {
         type: mongoose.Types.ObjectId,
@@ -35,13 +35,24 @@ const ItemSchema = mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'MenuCategory'
     }],
-    //TODO need to make sure that menu items can also be added as menu items so we need to amend the type to maybe use discriminators or 
+    //TODO need to make sure that menu items can also be added as menu item extras so we need to amend the type to maybe use discriminators or 
     //use mixed type
     extra_items: [{
         type: mongoose.Types.ObjectId,
         ref: 'MenuItemExtra'
     }]
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
+
+ItemSchema.set('toJSON', {
+    getters: true,
+    transform: (doc, ret) => {
+        if (ret.price) {
+            ret.price = ret.price.toString();
+        }
+        delete ret.__v;
+        return ret;
+    }
+})
 
 ItemSchema.pre('save', function(next) {
     var item = this;

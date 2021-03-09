@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-const ItemExtraSchema = mongoose.Schema({
-    price: { type: Number, default: 0 },
+const MenuItemExtraSchema = mongoose.Schema({
+    price: { type: mongoose.Types.Decimal128, default: 0.00 },
     name: { type: String, required: true },
     size: String,
     // should be an enum 
@@ -23,4 +23,15 @@ const ItemExtraSchema = mongoose.Schema({
     }],
 });
 
-module.exports = mongoose.model('MenuItemExtra', ItemExtraSchema);
+MenuItemExtraSchema.set('toJSON', {
+    getters: true,
+    transform: (doc, ret) => {
+        if (ret.price) {
+            ret.price = ret.price.toString();
+        }
+        delete ret.__v;
+        return ret;
+    }
+})
+
+module.exports = mongoose.model('MenuItemExtra', MenuItemExtraSchema);

@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const OrderSchema = mongoose.Schema({
-    //get the order date from the createdAt timestamp
-    // date: {
-    //     type: Date,
-    //     default: Date.now
-    // },
     restaurant: {
         type: mongoose.Types.ObjectId,
         ref: 'Restaurant',
@@ -18,21 +13,8 @@ const OrderSchema = mongoose.Schema({
         required: true
     },
     cart: {
-        discount: Number,
-        total: mongoose.Types.Decimal128,
-        number_items: Number,
-        cart_items: [{
-            menu_item: {
-                type: mongoose.Types.ObjectId,
-                ref: 'MenuItem',
-                required: true
-            },
-            quantity: Number,
-            menu_extra_items: [{
-                type: mongoose.Types.ObjectId,
-                ref: 'MenuItemExtra'
-            }]
-        }]
+        type: mongoose.Types.ObjectId,
+        ref: 'Cart'
     },
     rating: {
         type: mongoose.Types.ObjectId,

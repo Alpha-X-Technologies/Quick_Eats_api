@@ -1,22 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const MenuItem = require('../models/MenuItem');
-const InventoryItem = require('../models/Inventory');
-const MenuCategory = require('../models/MenuCategory')
+const MenuCategory = require('../models/MenuCategory');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 const verify = require('./verifyToken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const MenuItemExtraGroup = require('../models/MenuItemExtraGroup');
+const MenuItemExtra = require('../models/MenuItemExtra');
 
 router.get('/:menu_id', async(req, res) => {
-    try {
-        const MenuItems = await MenuItem.find({
-            menu: req.params.menu_id
-        });
-        res.json(MenuItems);
-    } catch (error) {
-        res.json({ message: error });
-    }
+    await MenuItem.find({
+        menu: req.params.menu_id
+    }).populate('extra_items').populate('categories').populate({
+        path: 'extra_items',
+        populate: {
+            path: 'group',
+            model: 'MenuItemExtraGroup'
+        }
+    }).then((item) => {
+        res.json({ menu_items: item });
+    }, (err) => {
+        console.log(err);
+        res.status(400).json({ message: "Something went wrong" });
+    });
 });
 // Retriving the image 
 router.get('/manageItems', (req, res) => {

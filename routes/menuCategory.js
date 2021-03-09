@@ -7,7 +7,7 @@ const multer = require('multer');
 router.get('/', verify, async(req, res) => {
     try {
         const menuCategories = await Category.find();
-        res.json(menuCategories);
+        res.json({ menu_item_categories: menuCategories });
     } catch (error) {
         res.json({ message: error });
     }

@@ -3,8 +3,10 @@ const app = express();
 const mongoose = require('mongoose');
 const path = require('path');
 var cookieParser = require('cookie-parser')
-const result = require('dotenv').config({ path: path.resolve(process.cwd(), '.env') })
+const result = require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });
 
+const menu_extras = require('./models/MenuItemExtra');
+require('./models/MenuItemExtraGroup');
 
 //for all json and form requests
 app.use(express.json());
@@ -20,6 +22,7 @@ mongoose.connect(process.env.DB_CONNECTION, { useUnifiedTopology: true, useNewUr
     console.log('connected to DB');
 
 })
+
 
 
 const users = require('./routes/users.js'); //require the router

@@ -11,8 +11,7 @@ const Rating = require('../models/Rating');
 //get all the restaurants
 router.get('/', async(req, res) => {
     try {
-        //TODO use populate to get objects instead of ids
-        const restaurants = await Restaurant.find();
+        const restaurants = await Restaurant.find().populate('menus');
         res.json({ 'restaurants': restaurants });
     } catch (error) {
         res.json({ message: error });
@@ -45,19 +44,17 @@ const upload = multer({ storage: storage });
 
 //Creating a Restaurant in the db
 router.post('/new', upload.single('image'), async(req, res) => {
-    //console.log(req.body);
     const restaurant = new Restaurant({
         name: req.body.name,
-        //email: req.body.email,
         description: req.body.description,
         contact_number: req.body.contact_number,
         campus: req.body.campus,
-        //TODO get image data and upload to server and add picture url property to restaurant
+        //TODO get image data and upload to server and add 'picture_url' property to restaurant
         img: {
             data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
             contentType: 'image/png'
         },
-        trading_hours = req.body.trading_hours,
+        trading_hours: req.body.trading_hours,
         vendor: req.body.vendor_id
     });
     try {
