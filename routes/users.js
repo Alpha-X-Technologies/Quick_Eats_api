@@ -4,6 +4,10 @@ const user = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const verify = require('./verifyToken');
+const { body, validationResult } = require('express-validator');
+const Notification = require('../models/Notification');
+const PushDevice = require('../models/PushDevice');
+const User = require('../models/User');
 //const User = require('../models/User');
 
 //get all the users
@@ -30,7 +34,7 @@ router.get('/user', verify, async(req, res) => {
     }
 });
 
-router.post('/password-update', async(req, res) => {
+router.put('/password-update', async(req, res) => {
     const emailExist = await user.findOne({ email: req.body.email });
     if (!emailExist) return res.status(400).send('Email does not exists');
 
@@ -46,7 +50,7 @@ router.post('/password-update', async(req, res) => {
     }
 });
 
-router.post('/update-profile/:userId', async(req, res) => {
+router.put('/update-profile/:userId', async(req, res) => {
     const currentUser = await user.findById(req.params.userId);
     if (!currentUser) return res.status(400).send('User does not exist');
 
@@ -68,6 +72,52 @@ router.post('/update-profile/:userId', async(req, res) => {
     }
 });
 
+router.post('/send-token', body('uuid').isLength({ min: 2 }), body('token').isLength({ min: 5 }), body('platform').isIn(['0', '1']), async(req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    let uuid = req.body.uuid;
+    let token = req.body.token;
+    let platform = req.body.platform;
+
+    const whereQuery = {
+        uuid: uuid,
+        platform: platform,
+    };
+
+    try {
+        const user = await User.findById(uuid);
+        user.token = token;
+        await user.save();
+
+        // creates 'Push Device' if it doesn't exist
+        const device = await PushDevice.findOne(whereQuery);
+        if (device != undefined || device != null) {
+            //device.update()
+            device.token = token;
+            device.save().then(() => {
+                return res.json({ success: true });
+            });
+        } else {
+            const newDevice = new PushDevice({
+                platform: platform,
+                token: token,
+                uuid: uuid
+            });
+
+            newDevice.save().then(() => {
+                return res.json({ success: true });
+            });
+        }
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ success: false });
+    }
+
+});
 //Creating a user in the db
 router.post('/register', async(req, res) => {
     const emailExist = await user.findOne({ email: req.body.email });
@@ -99,13 +149,16 @@ router.post('/login', async(req, res) => {
     if (!validPass) return res.status(401).send('Invalid Password or email');
 
     //creating token
-    const token = jwt.sign({ _id: userLogin._id }, process.env.TOKEN_SECRET, (err, token) => {
-        var returnUser = userLogin;
-        returnUser.password = undefined;
-        returnUser.__v = undefined;
-        res.send({ user: returnUser, accessToken: token });
-        res.cookie('auth-token', token);
-        res.redirect('/dashboard');
+    jwt.sign({ _id: userLogin._id }, process.env.TOKEN_SECRET, (err, token) => {
+        if (err) {
+            console.log(err);
+            res.status(500).json({ message: "Error issuing token" });
+        } else {
+            var returnUser = userLogin;
+            returnUser.password = undefined;
+            returnUser.__v = undefined;
+            res.send({ user: returnUser, accessToken: token });
+        }
     });
 
 });
